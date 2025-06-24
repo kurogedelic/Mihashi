@@ -13,10 +13,10 @@ graph TD
     C[LittleJoe<br/>XIAO SAMD21<br/>開発用MIDIモニター]
     D[picoprobe<br/>デバッグプローブ]
     
-    A --|"USB MIDI<br/>制御・データ転送"| B
-    A --|"USB C<br/>デバッグ制御"| D
-    B --|"USB A→USB C<br/>MIDI信号送信"| C
-    D --|"SWD Debug<br/>プログラム・デバッグ"| C
+    A ---|USB MIDI 制御・データ転送| B
+    A ---|USB C デバッグ制御| D
+    B ---|USB A→USB C MIDI信号送信| C
+    D ---|SWD Debug プログラム・デバッグ| C
     
     style B fill:#e1f5fe
     style C fill:#f3e5f5
