@@ -1,8 +1,8 @@
-# MidiBridge Project
+# Mihashi Dev Project
 
 ## プロジェクト概要
 
-MidiBridgeは、自律開発機能を持つUSB MIDI変換システムです。3つのデバイスで構成され、Claude Code統合による夜間自動開発機能を備えています。
+**Mihashi Dev Project** は、Claude Code を活用した自律開発により USB MIDI変換デバイス「Mihashi」を開発するプロジェクトです。GhostPC が夜間時間帯に自動的にコード改善・テスト・デプロイを実行し、3つのデバイスで構成されたシステムで開発・検証を行います。
 
 ## システム構成
 
@@ -25,11 +25,11 @@ graph TD
 
 ## デバイス詳細
 
-### 🎵 Mihashi (本体)
+### 🎵 Mihashi (開発対象デバイス)
 - **ハードウェア**: Waveshare RP2350A USB PIO HOST
 - **機能**: USB MIDI Host、双方向MIDI変換
 - **接続**: GhostPC ←→ USB MIDI、LittleJoe ←→ USB A/C
-- **開発**: 自律開発システム対応
+- **開発**: GhostPCによる自律開発の成果物
 
 ### 🔍 LittleJoe (モニター)
 - **ハードウェア**: Waveshare RP2040 Zero
@@ -43,11 +43,11 @@ graph TD
 - **接続**: LittleJoe ←→ UART、GhostPC ←→ USB C
 - **開発**: Arduino IDE
 
-### 💻 GhostPC (開発環境)
+### 💻 GhostPC (自律開発実行環境)
 - **ハードウェア**: Ubuntu 22.04 Server
-- **機能**: 統合開発環境、自律開発実行
+- **機能**: Mihashi の自律開発・ビルド・テスト実行
 - **ツール**: Pico SDK、Arduino CLI、Claude Code CLI、Bun.sh
-- **自動化**: GitHub Actions、systemd、Discord通知
+- **自動化**: GitHub Actions、systemd、Discord通知による無人開発
 
 ## 技術仕様
 
@@ -55,7 +55,7 @@ graph TD
 |------|---------|-----------|---------|
 | CPU | RP2350A (150MHz) | RP2040 (133MHz) | ATmega328P (16MHz) |
 | メモリ | 520KB SRAM | 264KB SRAM | 2KB SRAM |
-| USB | Host (PIO) | Device | Device (USB Serial) |
+| USB | Device / Host (PIO) | Device | Device (USB Serial) |
 | 開発SDK | Pico SDK | Arduino IDE / Pico SDK | Arduino IDE |
 
 ## 通信プロトコル
@@ -70,13 +70,15 @@ USB MIDI Device → Mihashi → USB A/C → LittleJoe → UART ASCII → Arduino
 GhostPC → Arduino (シリアルモニター) → UART → LittleJoe (リアルタイムMIDI監視)
 ```
 
-## 自律開発システム
+## Mihashi 自律開発システム
 
-- **稼働時間**: 毎日 24:00-05:00
-- **AI統合**: Claude Code による自動コード改善
-- **CI/CD**: GitHub Actions + systemd
-- **通知**: Discord Webhook
-- **監視**: システムヘルスモニタリング
+GhostPC が Mihashi デバイスを自律的に開発・改善するシステム：
+
+- **稼働時間**: 毎日 24:00-05:00 (GhostPC で実行)
+- **AI統合**: Claude Code による Mihashi コード自動改善
+- **CI/CD**: GitHub Actions + systemd による自動ビルド・デプロイ
+- **通知**: Discord Webhook による開発進捗報告
+- **監視**: Mihashi 開発状況のヘルスモニタリング
 
 ## ファイル構成
 
@@ -96,51 +98,51 @@ PicoBridge/
     └── 2025-06-24.md                           # 開発日誌
 ```
 
-## 開発状況
+## Mihashi 開発状況
 
 ### 完了項目 ✅
-- [x] GhostPC開発環境構築
-- [x] デバイス接続確認
-- [x] プロジェクト設計・文書化
-- [x] GitHub同期設定
+- [x] GhostPC 自律開発環境構築
+- [x] Mihashi・LittleJoe・Arduino 接続確認
+- [x] システム設計・文書化
+- [x] GitHub 自動化設定
 
 ### 進行中項目 🚧
-- [ ] Mihashi ファームウェア実装
-- [ ] LittleJoe モニタリング機能
-- [ ] 自律開発システム統合
+- [ ] Mihashi USB Host ファームウェア実装
+- [ ] LittleJoe MIDI モニタリング機能
+- [ ] GhostPC 自律開発システム統合
 
 ### 今後の予定 📋
 - [ ] RP2040 Zero環境でのLittleJoe開発
-- [ ] USB Serial経由でのMIDIデバッグ機能
-- [ ] システム全体統合テスト
+- [ ] Arduino経由でのリアルタイムMIDI監視
+- [ ] Mihashi 完全自律開発システム稼働
 
-## クイックスタート
+## Mihashi 開発クイックスタート
 
-1. **環境確認**
+1. **デバイス接続確認**
    ```bash
-   # GhostPCでのデバイス確認
-   lsusb  # Mihashi, Arduinoが表示されるか確認
+   # GhostPCでMihashi関連デバイス確認
+   lsusb  # Mihashi, Arduino が表示されるか確認
    ```
 
-2. **開発環境起動**
+2. **Mihashi 開発環境起動**
    ```bash
    cd ~/MidiBridgePico
-   # 各デバイスの開発環境を起動
+   # Mihashi ファームウェア開発開始
    ```
 
-3. **自律開発有効化**
+3. **Mihashi 自律開発有効化**
    ```bash
    sudo systemctl enable autonomous-dev.service
    sudo systemctl start autonomous-dev.service
    ```
 
-## 貢献・開発
+## Mihashi 開発への貢献
 
-このプロジェクトは自律開発システムにより、AIが継続的に改善を行います。
-手動での貢献も歓迎します。詳細は各技術文書を参照してください。
+このプロジェクトは GhostPC による自律開発システムにより、AI が Mihashi デバイスを継続的に改善・開発します。
+手動での Mihashi 開発貢献も歓迎します。詳細は各技術文書を参照してください。
 
 ---
 
-**Project Status**: Active Development  
+**Mihashi Dev Project Status**: Active Development  
 **Last Updated**: 2025-06-24  
-**Next Milestone**: RP2040 Zero + Arduino によるMIDI監視システム実装
+**Next Milestone**: RP2040 Zero + Arduino による Mihashi MIDI監視システム実装

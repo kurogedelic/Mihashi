@@ -1,8 +1,8 @@
-# 自律開発システム設計書
+# Mihashi 自律開発システム設計書
 
 ## 概要
 
-MidiBridge プロジェクトの自律開発システムは、Claude Code を活用して夜間時間帯（24:00-05:00）に自動的にコード改善・テスト・デプロイを実行するシステムです。GhostPC 上で systemd サービスとして稼働し、GitHub Actions と連携して継続的な開発を行います。
+Mihashi Dev Project の自律開発システムは、GhostPC が Claude Code を活用して夜間時間帯（24:00-05:00）に Mihashi デバイスのコード改善・テスト・デプロイを自動実行するシステムです。systemd サービスとして稼働し、GitHub Actions と連携して Mihashi の継続的な開発を行います。
 
 ---
 
@@ -101,24 +101,24 @@ class ClaudePrompts:
     @staticmethod
     def code_review_prompt(code_context):
         return f"""
-        Mihashi MIDI USB Host プロジェクトのコードレビューと改善を実行してください。
+        Mihashi USB MIDI Host デバイスのファームウェア開発コードレビューと改善を実行してください。
 
-        ## 現在のコード状況:
+        ## 現在の Mihashi コード状況:
         {code_context.current_files}
 
         ## 最近のコミット:
         {code_context.recent_commits}
 
-        ## テスト結果:
+        ## Mihashi テスト結果:
         {code_context.test_results}
 
-        ## 改善要求:
-        1. パフォーマンス最適化
-        2. エラーハンドリング強化  
-        3. コード可読性向上
-        4. メモリ使用量削減
+        ## Mihashi 改善要求:
+        1. USB PIO Host パフォーマンス最適化
+        2. MIDI変換エラーハンドリング強化  
+        3. RP2350A 最適化とコード可読性向上
+        4. メモリ使用量削減（520KB SRAM 制約内）
 
-        改善提案と具体的なコード変更を提示してください。
+        Mihashi デバイス用の改善提案と具体的なコード変更を提示してください。
         """
     
     @staticmethod
@@ -473,4 +473,5 @@ sudo systemctl disable autonomous-dev.timer
 **最終更新**: 2025-06-24  
 **稼働環境**: GhostPC (Ubuntu 22.04)  
 **AI エージェント**: Claude-3.5 Sonnet  
-**実行時間**: 毎日 24:00-05:00
+**実行時間**: 毎日 24:00-05:00  
+**開発対象**: Mihashi USB MIDI Host デバイス
