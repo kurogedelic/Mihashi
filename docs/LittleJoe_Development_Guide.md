@@ -1,20 +1,20 @@
-# LittleJoe 開発ガイド（XIAO SAMD21 MIDI Monitor）
+# LittleJoe 開発ガイド（RP2040 Zero MIDI Monitor）
 
 ## 概要
 
-**LittleJoe** は Seeed XIAO SAMD21 を使用した **開発用 MIDI モニタリングデバイス** です。Mihashi から受信した USB MIDI データをリアルタイムで解析・表示し、picoprobe 経由でデバッグ情報を GhostPC に送信します。
+**LittleJoe** は Waveshare RP2040 Zero を使用した **開発用 MIDI モニタリングデバイス** です。Mihashi から受信した USB MIDI データをリアルタイムで解析し、UART 経由で ASCII 形式として Arduino に出力します。Arduino は USB Serial でデータを GhostPC に送信し、リアルタイム監視を実現します。
 
 ---
 
 ## ハードウェア仕様
 
-### 基板: Seeed XIAO SAMD21
+### 基板: Waveshare RP2040 Zero
 
-- **CPU**: SAMD21G18A (ARM Cortex-M0+ @ 48MHz)
-- **メモリ**: 32KB SRAM、256KB Flash
+- **CPU**: RP2040 (デュアルコア ARM Cortex-M0+ @ 133MHz)
+- **メモリ**: 264KB SRAM、2MB Flash
 - **USB**: USB-C（Device mode）
-- **GPIO**: 11ピン（うち8ピンがアナログ対応）
-- **サイズ**: 20×17.5mm（超小型）
+- **GPIO**: 16ピン（うち3ピンがアナログ対応）
+- **サイズ**: 23×18mm（超小型）
 - **電源**: 3.3V/5V両対応
 
 ### 接続構成

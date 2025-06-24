@@ -10,17 +10,17 @@ MidiBridgeは、自律開発機能を持つUSB MIDI変換システムです。3�
 graph TD
     A[GhostPC<br/>Ubuntu 22.04<br/>開発環境]
     B[Mihashi<br/>RP2350A USB PIO HOST<br/>MIDI USB Host本体]
-    C[LittleJoe<br/>XIAO SAMD21<br/>開発用MIDIモニター]
-    D[picoprobe<br/>デバッグプローブ]
+    C[LittleJoe<br/>RP2040 Zero<br/>開発用MIDIモニター]
+    D[Arduino<br/>UART-USB変換<br/>モニター出力]
     
     A ---|USB MIDI 制御・データ転送| B
-    A ---|USB C デバッグ制御| D
+    A ---|USB C シリアル監視| D
     B ---|USB A→USB C MIDI信号送信| C
-    D ---|SWD Debug プログラム・デバッグ| C
+    C ---|UART ASCII出力| D
     
     style B fill:#e1f5fe
     style C fill:#f3e5f5
-    style D fill:#e8f5e8
+    style D fill:#fff3e0
 ```
 
 ## デバイス詳細
@@ -32,16 +32,16 @@ graph TD
 - **開発**: 自律開発システム対応
 
 ### 🔍 LittleJoe (モニター)
-- **ハードウェア**: Seeed XIAO SAMD21
-- **機能**: 開発用MIDIデータモニタリング、UART変換
-- **接続**: Mihashi ←→ USB C、picoprobe ←→ SWD
-- **開発**: リアルタイムデバッグ対応
+- **ハードウェア**: Waveshare RP2040 Zero
+- **機能**: 開発用MIDIデータモニタリング、UART出力
+- **接続**: Mihashi ←→ USB C、Arduino ←→ UART
+- **開発**: Arduino IDE + Pico SDK対応
 
-### 🛠️ picoprobe (デバッガ)
-- **ハードウェア**: Raspberry Pi Pico (debugprobe firmware)
-- **機能**: SWDデバッガ、UART通信
-- **接続**: GhostPC ←→ USB C、LittleJoe ←→ SWD
-- **開発**: OpenOCD + GDB統合
+### 🔗 Arduino (UART変換)
+- **ハードウェア**: Arduino Uno/Nano など
+- **機能**: UART-USB変換、ASCII MIDIモニター表示
+- **接続**: LittleJoe ←→ UART、GhostPC ←→ USB C
+- **開発**: Arduino IDE
 
 ### 💻 GhostPC (開発環境)
 - **ハードウェア**: Ubuntu 22.04 Server
@@ -51,23 +51,23 @@ graph TD
 
 ## 技術仕様
 
-| 項目 | Mihashi | LittleJoe | picoprobe |
-|------|---------|-----------|-----------|
-| CPU | RP2350A (150MHz) | SAMD21 (48MHz) | RP2040 (133MHz) |
-| メモリ | 520KB SRAM | 32KB SRAM | 264KB SRAM |
-| USB | Host (PIO) | Device | Device |
-| 開発SDK | Pico SDK | Arduino IDE | Pico SDK |
+| 項目 | Mihashi | LittleJoe | Arduino |
+|------|---------|-----------|---------|
+| CPU | RP2350A (150MHz) | RP2040 (133MHz) | ATmega328P (16MHz) |
+| メモリ | 520KB SRAM | 264KB SRAM | 2KB SRAM |
+| USB | Host (PIO) | Device | Device (USB Serial) |
+| 開発SDK | Pico SDK | Arduino IDE / Pico SDK | Arduino IDE |
 
 ## 通信プロトコル
 
 ### MIDI Data Flow
 ```
-USB MIDI Device → Mihashi → USB A/C → LittleJoe → UART → picoprobe → GhostPC
+USB MIDI Device → Mihashi → USB A/C → LittleJoe → UART ASCII → Arduino → USB Serial → GhostPC
 ```
 
 ### Debug Flow
 ```
-GhostPC → picoprobe → SWD → LittleJoe (リアルタイムデバッグ)
+GhostPC → Arduino (シリアルモニター) → UART → LittleJoe (リアルタイムMIDI監視)
 ```
 
 ## 自律開発システム
@@ -110,8 +110,8 @@ PicoBridge/
 - [ ] 自律開発システム統合
 
 ### 今後の予定 📋
-- [ ] Arduino IDE環境でのLittleJoe開発
-- [ ] リアルタイムMIDIデバッグ機能
+- [ ] RP2040 Zero環境でのLittleJoe開発
+- [ ] USB Serial経由でのMIDIデバッグ機能
 - [ ] システム全体統合テスト
 
 ## クイックスタート
@@ -119,7 +119,7 @@ PicoBridge/
 1. **環境確認**
    ```bash
    # GhostPCでのデバイス確認
-   lsusb  # Mihashi, picoprobeが表示されるか確認
+   lsusb  # Mihashi, Arduinoが表示されるか確認
    ```
 
 2. **開発環境起動**
@@ -143,4 +143,4 @@ PicoBridge/
 
 **Project Status**: Active Development  
 **Last Updated**: 2025-06-24  
-**Next Milestone**: Arduino環境でのLittleJoe実装
+**Next Milestone**: RP2040 Zero + Arduino によるMIDI監視システム実装
