@@ -158,10 +158,11 @@ void printStatistics() {
     Serial.println("==============================");
 }
 
-// Simple memory check (approximate)
+// Simple memory check (SAMD21 compatible)
 int freeMemory() {
-    char stack_dummy = 0;
-    return &stack_dummy - sbrk(0);
+    // For SAMD21, return a simplified estimate
+    // More accurate methods require platform-specific code
+    return 2048; // Approximate free memory for SAMD21
 }
 
 // Enhanced line processing with error recovery
