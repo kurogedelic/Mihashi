@@ -69,6 +69,7 @@
 4. **Development Approach**: Prioritize working implementations with Arduino IDE ecosystem
 5. **Communication**: Keep responses concise and technically accurate
 6. **Progress Tracking**: Use todo lists and structured project management
+7. **Always Commit**: End every work session by committing all changes with detailed commit messages
 
 ## Requested Work Journal Maintenance
 
