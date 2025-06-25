@@ -10,8 +10,8 @@
 graph TD
     A[GhostPC<br/>Ubuntu 22.04<br/>開発環境]
     B[Mihashi<br/>RP2350A USB PIO HOST<br/>MIDI USB Host本体]
-    C[LittleJoe<br/>RP2040 Zero<br/>開発用MIDIモニター]
-    D[Arduino<br/>UART-USB変換<br/>モニター出力]
+    C[LittleJoe<br/>XIAO SAMD21<br/>TinyUSB MIDI Monitor]
+    D[UartMonitor<br/>XIAO SAMD21<br/>UART→USB Serial変換]
     
     A ---|USB MIDI 制御・データ転送| B
     A ---|USB C シリアル監視| D
@@ -31,17 +31,17 @@ graph TD
 - **接続**: GhostPC ←→ USB MIDI、LittleJoe ←→ USB A/C
 - **開発**: GhostPCによる自律開発の成果物
 
-### 🔍 LittleJoe (モニター)
-- **ハードウェア**: Waveshare RP2040 Zero
-- **機能**: 開発用MIDIデータモニタリング、UART出力
-- **接続**: Mihashi ←→ USB C、Arduino ←→ UART
-- **開発**: Arduino IDE + Pico SDK対応
+### 🔍 LittleJoe (MIDI Monitor)
+- **ハードウェア**: Seeed XIAO SAMD21
+- **機能**: TinyUSB MIDI受信、UART ASCII出力
+- **接続**: Mihashi ←→ USB C、UartMonitor ←→ UART
+- **開発**: Arduino IDE + TinyUSB MIDI ライブラリ
 
-### 🔗 Arduino (UART変換)
-- **ハードウェア**: Arduino Uno/Nano など
-- **機能**: UART-USB変換、ASCII MIDIモニター表示
+### 🔗 UartMonitor (シリアル変換)
+- **ハードウェア**: Seeed XIAO SAMD21
+- **機能**: UART受信→USB Serial送信、ASCII表示
 - **接続**: LittleJoe ←→ UART、GhostPC ←→ USB C
-- **開発**: Arduino IDE
+- **開発**: Arduino IDE + USB Serial
 
 ### 💻 GhostPC (自律開発実行環境)
 - **ハードウェア**: Ubuntu 22.04 Server
@@ -51,23 +51,23 @@ graph TD
 
 ## 技術仕様
 
-| 項目 | Mihashi | LittleJoe | Arduino |
-|------|---------|-----------|---------|
-| CPU | RP2350A (150MHz) | RP2040 (133MHz) | ATmega328P (16MHz) |
-| メモリ | 520KB SRAM | 264KB SRAM | 2KB SRAM |
-| USB | Device / Host (PIO) | Device | Device (USB Serial) |
-| 開発SDK | Pico SDK | Arduino IDE / Pico SDK | Arduino IDE |
+| 項目 | Mihashi | LittleJoe | UartMonitor |
+|------|---------|-----------|-------------|
+| CPU | RP2350A (150MHz) | SAMD21 (48MHz) | SAMD21 (48MHz) |
+| メモリ | 520KB SRAM | 32KB SRAM | 32KB SRAM |
+| USB | Device / Host (PIO) | Device (TinyUSB MIDI) | Device (USB Serial) |
+| 開発SDK | Pico SDK | Arduino IDE + TinyUSB | Arduino IDE |
 
 ## 通信プロトコル
 
 ### MIDI Data Flow
 ```
-USB MIDI Device → Mihashi → USB A/C → LittleJoe → UART ASCII → Arduino → USB Serial → GhostPC
+USB MIDI Device → Mihashi → USB A/C → LittleJoe → UART ASCII → UartMonitor → USB Serial → GhostPC
 ```
 
 ### Debug Flow
 ```
-GhostPC → Arduino (シリアルモニター) → UART → LittleJoe (リアルタイムMIDI監視)
+GhostPC → UartMonitor (シリアルモニター) → UART → LittleJoe (リアルタイムMIDI監視)
 ```
 
 ## Mihashi 自律開発システム
@@ -88,10 +88,12 @@ PicoBridge/
 ├── docs/
 │   ├── Mihashi_Technical_Specification.md      # Mihashi技術仕様
 │   ├── LittleJoe_Development_Guide.md          # LittleJoe開発ガイド
+│   ├── UartMonitor_Development_Guide.md        # UartMonitor開発ガイド
 │   └── Autonomous_Development_System.md        # 自律開発システム詳細
 ├── firmware/
 │   ├── mihashi/                                 # Mihashi用ファームウェア
-│   └── littlejoe/                               # LittleJoe用ファームウェア
+│   ├── littlejoe/                               # LittleJoe用ファームウェア
+│   └── uartmonitor/                             # UartMonitor用ファームウェア
 ├── scripts/
 │   └── autonomous_dev/                          # 自律開発スクリプト
 └── diary/
@@ -112,8 +114,8 @@ PicoBridge/
 - [ ] GhostPC 自律開発システム統合
 
 ### 今後の予定 📋
-- [ ] RP2040 Zero環境でのLittleJoe開発
-- [ ] Arduino経由でのリアルタイムMIDI監視
+- [ ] XIAO SAMD21環境でのLittleJoe開発（TinyUSB MIDI）
+- [ ] XIAO SAMD21環境でのUartMonitor開発（UART→USB Serial）
 - [ ] Mihashi 完全自律開発システム稼働
 
 ## Mihashi 開発クイックスタート
@@ -121,7 +123,7 @@ PicoBridge/
 1. **デバイス接続確認**
    ```bash
    # GhostPCでMihashi関連デバイス確認
-   lsusb  # Mihashi, Arduino が表示されるか確認
+   lsusb  # Mihashi, UartMonitor が表示されるか確認
    ```
 
 2. **Mihashi 開発環境起動**
@@ -145,4 +147,4 @@ PicoBridge/
 
 **Mihashi Dev Project Status**: Active Development  
 **Last Updated**: 2025-06-24  
-**Next Milestone**: RP2040 Zero + Arduino による Mihashi MIDI監視システム実装
+**Next Milestone**: XIAO SAMD21 × 2 による Mihashi MIDI監視システム実装

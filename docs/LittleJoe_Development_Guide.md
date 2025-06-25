@@ -1,34 +1,33 @@
-# LittleJoe 開発ガイド（RP2040 Zero MIDI Monitor）
+# LittleJoe 開発ガイド（XIAO SAMD21 TinyUSB MIDI Monitor）
 
 ## 概要
 
-**LittleJoe** は Waveshare RP2040 Zero を使用した **開発用 MIDI モニタリングデバイス** です。Mihashi から受信した USB MIDI データをリアルタイムで解析し、UART 経由で ASCII 形式として Arduino に出力します。Arduino は USB Serial でデータを GhostPC に送信し、リアルタイム監視を実現します。
+**LittleJoe** は Seeed XIAO SAMD21 を使用した **TinyUSB MIDI モニタリングデバイス** です。Mihashi から受信した USB MIDI データを TinyUSB MIDI ライブラリでリアルタイム解析し、UART 経由で ASCII 形式として UartMonitor に出力します。UartMonitor は USB Serial でデータを GhostPC に送信し、リアルタイム監視を実現します。
 
 ---
 
 ## ハードウェア仕様
 
-### 基板: Waveshare RP2040 Zero
+### 基板: Seeed XIAO SAMD21
 
-- **CPU**: RP2040 (デュアルコア ARM Cortex-M0+ @ 133MHz)
-- **メモリ**: 264KB SRAM、2MB Flash
-- **USB**: USB-C（Device mode）
-- **GPIO**: 16ピン（うち3ピンがアナログ対応）
-- **サイズ**: 23×18mm（超小型）
+- **CPU**: SAMD21G18A (ARM Cortex-M0+ @ 48MHz)
+- **メモリ**: 32KB SRAM、256KB Flash
+- **USB**: USB-C（Device mode、TinyUSB対応）
+- **GPIO**: 11ピン（うち8ピンがアナログ対応）
+- **サイズ**: 20×17.5mm（超小型）
 - **電源**: 3.3V/5V両対応
 
 ### 接続構成
 
 ```
-[Mihashi] ←USB A/C→ [LittleJoe] ←SWD→ [picoprobe] ←USB C→ [GhostPC]
+[Mihashi] ←USB A/C→ [LittleJoe] ←UART→ [UartMonitor] ←USB C→ [GhostPC]
 ```
 
 **ピン割り当て**:
-- USB-C: Mihashi との MIDI 通信
-- D6 (PA04): SWD CLK → picoprobe
-- D7 (PA05): SWD DIO → picoprobe  
-- D10 (PA18): UART TX → picoprobe（デバッグ用）
-- GND/3V3: 電源・グランド → picoprobe
+- USB-C: Mihashi との TinyUSB MIDI 通信
+- D6 (PA04): UART TX → UartMonitor RX
+- D7 (PA05): UART RX → UartMonitor TX（将来用）  
+- GND/3V3: 電源・グランド → UartMonitor
 
 ---
 
@@ -56,8 +55,8 @@
 
 ```arduino
 // Arduino IDE → ライブラリマネージャでインストール
+#include <TinyUSB.h>           // TinyUSB MIDI対応
 #include <MIDI.h>              // MIDI通信用
-#include <USB/USBHost.h>       // USB Host機能
 #include <ArduinoJson.h>       // JSON出力用（オプション）
 ```
 
@@ -68,22 +67,18 @@
 ### メイン機能構成
 
 ```arduino
+#include <TinyUSB.h>
 #include <MIDI.h>
-#include <USBHost.h>
 
-// MIDI インスタンス作成
-MIDI_CREATE_DEFAULT_INSTANCE();
-
-// USB Host設定
-USBHost usb;
+// TinyUSB MIDI インスタンス作成
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 void setup() {
-    // シリアル通信初期化（picoprobe用）
-    Serial.begin(115200);
-    while (!Serial) delay(10);
+    // UART通信初期化（UartMonitor用）
+    Serial1.begin(115200);
     
-    // USB Host初期化
-    usb.begin();
+    // TinyUSB MIDI初期化
+    TinyUSB_Device_Init(0);
     
     // MIDI設定
     MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -91,12 +86,12 @@ void setup() {
     MIDI.setHandleNoteOff(handleNoteOff);
     MIDI.setHandleControlChange(handleControlChange);
     
-    Serial.println("LittleJoe MIDI Monitor Ready");
+    Serial1.println("LittleJoe TinyUSB MIDI Monitor Ready");
 }
 
 void loop() {
-    // USB Host処理
-    usb.Task();
+    // TinyUSB処理
+    TinyUSB_Device_Task();
     
     // MIDI メッセージ処理
     if (MIDI.read()) {
@@ -120,8 +115,8 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
     json["velocity"] = velocity;
     json["timestamp"] = millis();
     
-    serializeJson(json, Serial);
-    Serial.println();
+    serializeJson(json, Serial1);
+    Serial1.println();
 }
 
 // Note Off イベント処理  
@@ -133,8 +128,8 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
     json["velocity"] = velocity;
     json["timestamp"] = millis();
     
-    serializeJson(json, Serial);
-    Serial.println();
+    serializeJson(json, Serial1);
+    Serial1.println();
 }
 
 // Control Change イベント処理
@@ -146,8 +141,8 @@ void handleControlChange(byte channel, byte cc, byte value) {
     json["value"] = value;
     json["timestamp"] = millis();
     
-    serializeJson(json, Serial);
-    Serial.println();
+    serializeJson(json, Serial1);
+    Serial1.println();
 }
 ```
 
@@ -175,8 +170,8 @@ void parseUSBMIDIPacket(const USBMIDIPacket& packet) {
     }
     
     json["timestamp"] = millis();
-    serializeJson(json, Serial);
-    Serial.println();
+    serializeJson(json, Serial1);
+    Serial1.println();
 }
 ```
 
@@ -376,5 +371,5 @@ void debugInfo() {
 
 **最終更新**: 2025-06-24  
 **対象ハードウェア**: Seeed XIAO SAMD21  
-**開発環境**: Arduino IDE 2.x  
-**デバッガ**: picoprobe + OpenOCD
+**開発環境**: Arduino IDE 2.x + TinyUSB MIDI  
+**出力先**: UartMonitor (XIAO SAMD21)
