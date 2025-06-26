@@ -1,0 +1,62 @@
+# Mihashi Dual USB MIDI Bridge Firmware
+# RP2350A USB Device + PIO USB Host implementation
+cmake_minimum_required(VERSION 3.12)
+
+# Set board to RP2350
+set(PICO_BOARD pico2)
+
+# Include pico SDK
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
+project(mihashi_dual)
+
+# Initialize SDK
+pico_sdk_init()
+
+# Add executable
+add_executable(mihashi_dual
+    src/main_dual.c
+    src/usb_descriptors.c
+)
+
+# Include directories
+target_include_directories(mihashi_dual PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${CMAKE_CURRENT_LIST_DIR}
+)
+
+# TinyUSB configuration
+target_compile_definitions(mihashi_dual PRIVATE
+    CFG_TUSB_CONFIG_FILE="tusb_config_dual.h"
+)
+
+# Enable PIO USB support (if available)
+# family_add_pico_pio_usb(mihashi_dual)
+
+# Link libraries
+target_link_libraries(mihashi_dual PRIVATE
+    pico_stdlib
+    pico_multicore
+    tinyusb_device
+    tinyusb_host
+    tinyusb_board
+    hardware_gpio
+    hardware_clocks
+    hardware_pio
+    hardware_dma
+)
+
+# Create map/bin/hex file
+pico_add_extra_outputs(mihashi_dual)
+
+# UART output (avoid USB conflicts)
+pico_enable_stdio_usb(mihashi_dual 0)
+pico_enable_stdio_uart(mihashi_dual 1)
+
+# Additional compiler flags for optimization
+target_compile_options(mihashi_dual PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+    -O2
+)

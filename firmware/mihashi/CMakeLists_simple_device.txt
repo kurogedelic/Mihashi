@@ -1,0 +1,41 @@
+# Mihashi USB Device MIDI (Simple Version)
+# RP2350A USB MIDI Device only - no host functionality
+cmake_minimum_required(VERSION 3.12)
+
+# Set board to RP2350
+set(PICO_BOARD pico2)
+
+# Include pico SDK
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
+project(mihashi_device)
+
+# Initialize SDK
+pico_sdk_init()
+
+# Add executable
+add_executable(mihashi_device
+    src/main_device_simple.c
+    src/usb_descriptors.c
+)
+
+# Include directories
+target_include_directories(mihashi_device PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
+# Link libraries
+target_link_libraries(mihashi_device PRIVATE
+    pico_stdlib
+    tinyusb_device
+    tinyusb_board
+    hardware_gpio
+    hardware_clocks
+)
+
+# Create map/bin/hex file
+pico_add_extra_outputs(mihashi_device)
+
+# UART output
+pico_enable_stdio_usb(mihashi_device 0)
+pico_enable_stdio_uart(mihashi_device 1)

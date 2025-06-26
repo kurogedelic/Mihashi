@@ -1,0 +1,36 @@
+CMakeFiles/mihashi_simple_dual.dir/Users/kurogedelic/pico-sdk/src/rp2_common/pico_divider/divider_compiler.c.o: \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/pico_divider/divider_compiler.c \
+ /Users/kurogedelic/pico-sdk/src/common/pico_divider_headers/include/pico/divider.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico/types.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico/assert.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/assert.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/_ansi.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/newlib.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/_newlib_version.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/sys/config.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/machine/ieeefp.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/sys/features.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/stdint.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/machine/_default_types.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/sys/_intsup.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/sys/_stdint.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h \
+ /Users/kurogedelic/PicoBridge/firmware/mihashi/build/generated/pico_base/pico/version.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico/config.h \
+ /Users/kurogedelic/PicoBridge/firmware/mihashi/build/generated/pico_base/pico/config_autogen.h \
+ /Users/kurogedelic/pico-sdk/src/boards/include/boards/pico2.h \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/cmsis/include/cmsis/rename_exceptions.h \
+ /Users/kurogedelic/pico-sdk/src/rp2350/pico_platform/include/pico/platform.h \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/pico_platform_compiler/include/pico/platform/compiler.h \
+ /Users/kurogedelic/pico-sdk/src/rp2350/hardware_regs/include/hardware/platform_defs.h \
+ /usr/local/playdate/gcc-arm-none-eabi-9-2019-q4-major/arm-none-eabi/include/sys/cdefs.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico/types.h \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/pico_platform_sections/include/pico/platform/sections.h \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/pico_platform_panic/include/pico/platform/panic.h \
+ /Users/kurogedelic/pico-sdk/src/rp2350/hardware_regs/include/hardware/regs/addressmap.h \
+ /Users/kurogedelic/pico-sdk/src/rp2350/hardware_regs/include/hardware/regs/sio.h \
+ /Users/kurogedelic/pico-sdk/src/common/pico_base_headers/include/pico/error.h \
+ /Users/kurogedelic/pico-sdk/src/rp2_common/hardware_divider/include/hardware/divider.h
