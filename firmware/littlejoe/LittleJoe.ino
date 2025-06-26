@@ -44,6 +44,7 @@ MidiEvent pending_event;
 void setup() {
     // UART communication initialization (to UartMonitor)
     Serial.begin(UART_BAUD);
+    Serial1.begin(115200);
     
     // Arduino USB-MIDI initialization
     MIDI.begin(MIDI_CHANNEL_ALL);
@@ -54,7 +55,7 @@ void setup() {
     MIDI.setHandlePitchBend(handlePitchBend);
     
     // Startup message via UART (not USB to avoid conflicts)
-    Serial.println("LittleJoe Arduino USB MIDI Monitor Ready");
+    Serial1.println("LittleJoe Arduino USB MIDI Monitor Ready");
     delay(100);
 }
 
@@ -68,6 +69,12 @@ void loop() {
         midi_event_pending = false;
     }
     
+    // Debug heartbeat every 3 seconds
+    static unsigned long lastHeartbeat = 0;
+    if (millis() - lastHeartbeat > 3000) {
+        Serial1.println("[DEBUG] LittleJoe heartbeat");
+        lastHeartbeat = millis();
+    }
     delay(1);
 }
 
@@ -107,8 +114,8 @@ void processPendingEvent() {
             break;
     }
     
-    serializeJson(json, Serial);
-    Serial.println();
+    serializeJson(json, Serial1);
+    Serial1.println();
 }
 
 // MIDI Event Handlers (keep minimal - no USB operations!)
