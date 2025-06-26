@@ -1,135 +1,166 @@
 /*
- * LittleJoe - TinyUSB MIDI Monitor
- * XIAO SAMD21 TinyUSB MIDI → UART ASCII Monitor
+ * LittleJoe - Arduino USB MIDI Monitor (Stable Version)
+ * XIAO SAMD21 Arduino USB MIDI → UART ASCII Monitor
  * 
  * Hardware: Seeed XIAO SAMD21
  * Function: Receive USB MIDI from Mihashi, output ASCII to UartMonitor via UART
+ * USB Stack: Arduino (not TinyUSB) - for stability on XIAO SAMD21
  * 
  * Connections:
  * - USB-C: Mihashi USB MIDI input
  * - D6 (PA04): UART TX → UartMonitor RX
  * - D7 (PA05): UART RX ← UartMonitor TX (future use)
  * - GND/3V3: Power/Ground
+ * 
+ * Arduino IDE Settings:
+ * - Board: Seeeduino XIAO
+ * - USB Stack: Arduino (NOT TinyUSB)
  */
 
-#include <TinyUSB.h>
+#include <USB-MIDI.h>
 #include <MIDI.h>
 #include <ArduinoJson.h>
 
-// TinyUSB MIDI instance
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+// Arduino USB-MIDI instance (stable on XIAO SAMD21)
+USBMIDI_CREATE_DEFAULT_INSTANCE();
 
 // Configuration
 #define UART_BAUD 115200
 #define MIDI_CHANNEL_ALL MIDI_CHANNEL_OMNI
 
+// Pending MIDI events (safe processing)
+struct MidiEvent {
+    uint8_t type;
+    uint8_t channel;
+    uint8_t data1;
+    uint8_t data2;
+    int data3;  // for pitch bend
+    unsigned long timestamp;
+};
+
+volatile bool midi_event_pending = false;
+MidiEvent pending_event;
+
 void setup() {
     // UART communication initialization (to UartMonitor)
-    Serial1.begin(UART_BAUD);
+    Serial.begin(UART_BAUD);
     
-    // TinyUSB MIDI initialization
-    TinyUSB_Device_Init(0);
-    
-    // MIDI configuration
+    // Arduino USB-MIDI initialization
     MIDI.begin(MIDI_CHANNEL_ALL);
     MIDI.setHandleNoteOn(handleNoteOn);
     MIDI.setHandleNoteOff(handleNoteOff);
     MIDI.setHandleControlChange(handleControlChange);
     MIDI.setHandleProgramChange(handleProgramChange);
     MIDI.setHandlePitchBend(handlePitchBend);
-    MIDI.setHandleSystemExclusive(handleSystemExclusive);
     
-    // Startup message
-    Serial1.println("LittleJoe TinyUSB MIDI Monitor Ready");
+    // Startup message via UART (not USB to avoid conflicts)
+    Serial.println("LittleJoe Arduino USB MIDI Monitor Ready");
     delay(100);
 }
 
 void loop() {
-    // TinyUSB device task
-    TinyUSB_Device_Task();
+    // Process MIDI input
+    MIDI.read();
     
-    // MIDI message processing
-    if (MIDI.read()) {
-        // Message processed by handlers
+    // Process pending events safely in main loop
+    if (midi_event_pending) {
+        processPendingEvent();
+        midi_event_pending = false;
     }
     
     delay(1);
 }
 
-// MIDI Event Handlers
-void handleNoteOn(byte channel, byte note, byte velocity) {
+// Safe event processing in main loop (not in interrupt context)
+void processPendingEvent() {
     StaticJsonDocument<200> json;
-    json["type"] = "note_on";
-    json["channel"] = channel;
-    json["note"] = note;
-    json["velocity"] = velocity;
-    json["timestamp"] = millis();
+    json["timestamp"] = pending_event.timestamp;
+    json["channel"] = pending_event.channel;
     
-    serializeJson(json, Serial1);
-    Serial1.println();
+    switch (pending_event.type) {
+        case 1: // Note On
+            json["type"] = "note_on";
+            json["note"] = pending_event.data1;
+            json["velocity"] = pending_event.data2;
+            break;
+            
+        case 2: // Note Off
+            json["type"] = "note_off";
+            json["note"] = pending_event.data1;
+            json["velocity"] = pending_event.data2;
+            break;
+            
+        case 3: // Control Change
+            json["type"] = "control_change";
+            json["controller"] = pending_event.data1;
+            json["value"] = pending_event.data2;
+            break;
+            
+        case 4: // Program Change
+            json["type"] = "program_change";
+            json["program"] = pending_event.data1;
+            break;
+            
+        case 5: // Pitch Bend
+            json["type"] = "pitch_bend";
+            json["value"] = pending_event.data3;
+            break;
+    }
+    
+    serializeJson(json, Serial);
+    Serial.println();
+}
+
+// MIDI Event Handlers (keep minimal - no USB operations!)
+void handleNoteOn(byte channel, byte note, byte velocity) {
+    if (!midi_event_pending) {  // Avoid overwrite
+        pending_event.type = 1;
+        pending_event.channel = channel;
+        pending_event.data1 = note;
+        pending_event.data2 = velocity;
+        pending_event.timestamp = millis();
+        midi_event_pending = true;
+    }
 }
 
 void handleNoteOff(byte channel, byte note, byte velocity) {
-    StaticJsonDocument<200> json;
-    json["type"] = "note_off";
-    json["channel"] = channel;
-    json["note"] = note;
-    json["velocity"] = velocity;
-    json["timestamp"] = millis();
-    
-    serializeJson(json, Serial1);
-    Serial1.println();
+    if (!midi_event_pending) {
+        pending_event.type = 2;
+        pending_event.channel = channel;
+        pending_event.data1 = note;
+        pending_event.data2 = velocity;
+        pending_event.timestamp = millis();
+        midi_event_pending = true;
+    }
 }
 
 void handleControlChange(byte channel, byte controller, byte value) {
-    StaticJsonDocument<200> json;
-    json["type"] = "control_change";
-    json["channel"] = channel;
-    json["controller"] = controller;
-    json["value"] = value;
-    json["timestamp"] = millis();
-    
-    serializeJson(json, Serial1);
-    Serial1.println();
+    if (!midi_event_pending) {
+        pending_event.type = 3;
+        pending_event.channel = channel;
+        pending_event.data1 = controller;
+        pending_event.data2 = value;
+        pending_event.timestamp = millis();
+        midi_event_pending = true;
+    }
 }
 
 void handleProgramChange(byte channel, byte program) {
-    StaticJsonDocument<200> json;
-    json["type"] = "program_change";
-    json["channel"] = channel;
-    json["program"] = program;
-    json["timestamp"] = millis();
-    
-    serializeJson(json, Serial1);
-    Serial1.println();
+    if (!midi_event_pending) {
+        pending_event.type = 4;
+        pending_event.channel = channel;
+        pending_event.data1 = program;
+        pending_event.timestamp = millis();
+        midi_event_pending = true;
+    }
 }
 
 void handlePitchBend(byte channel, int bend) {
-    StaticJsonDocument<200> json;
-    json["type"] = "pitch_bend";
-    json["channel"] = channel;
-    json["value"] = bend;
-    json["timestamp"] = millis();
-    
-    serializeJson(json, Serial1);
-    Serial1.println();
-}
-
-void handleSystemExclusive(byte* array, unsigned size) {
-    StaticJsonDocument<400> json;
-    json["type"] = "sysex";
-    json["size"] = size;
-    json["timestamp"] = millis();
-    
-    JsonArray data = json.createNestedArray("data");
-    for (unsigned i = 0; i < size && i < 50; i++) {
-        data.add(array[i]);
+    if (!midi_event_pending) {
+        pending_event.type = 5;
+        pending_event.channel = channel;
+        pending_event.data3 = bend;
+        pending_event.timestamp = millis();
+        midi_event_pending = true;
     }
-    
-    if (size > 50) {
-        json["truncated"] = true;
-    }
-    
-    serializeJson(json, Serial1);
-    Serial1.println();
 }
