@@ -15,7 +15,7 @@ import sys
 # Device configurations
 DEVICES = {
     'mihashi': {
-        'vid_pid': ['2E8A:0005', '2E8A:000A'],  # RP2350 USB Serial + Bootloader
+        'vid_pid': ['1209:0001', '2E8A:0005', '2E8A:000A'],  # Current PID + RP2350 USB Serial + Bootloader
         'bootloader_baud': 3000,  # RP2350 might use 3000bps
         'firmware_pattern': '**/mihashi*.uf2',
         'mount_name': 'RP2350'
